@@ -1,0 +1,1 @@
+include ':app', ':easyrouter_annotation', ':easyrouter_register'

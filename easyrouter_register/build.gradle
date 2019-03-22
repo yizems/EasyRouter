@@ -1,0 +1,24 @@
+apply plugin: 'groovy'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'com.android.tools.build:gradle:3.3.1'
+}
+apply plugin: "maven"
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('F:/Android/as/gradle/m2repository')) //deploy到本地仓库
+            pom.groupId = "cn.yzl.easyrouter"
+            pom.artifactId = "register"
+            pom.version = "1.1.0"
+        }
+    }
+}
