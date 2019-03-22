@@ -1,8 +1,7 @@
 apply plugin: 'groovy'
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation project(':easyrouter_annotation')
 }
 
 repositories {
