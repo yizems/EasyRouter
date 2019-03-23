@@ -14,7 +14,7 @@ apply plugin: "maven"
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: uri('F:/Android/as/gradle/m2repository')) //deploy到本地仓库
+            repository(url: uri('C:/Users/YZL/.m2/repository')) //deploy到本地仓库
             pom.groupId = "cn.yzl.easyrouter"
             pom.artifactId = "register"
             pom.version = "1.1.0"
