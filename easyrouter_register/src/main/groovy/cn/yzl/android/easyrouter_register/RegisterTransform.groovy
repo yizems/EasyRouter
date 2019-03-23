@@ -54,27 +54,42 @@ public class RegisterTransform extends Transform {
 //        if (clearCache) {
 //            outputProvider.deleteAll()
 //        }
+        boolean leftSlash = File.separator == '/'
         outputProvider.deleteAll()
 
         CodeScanner scanProcessor = new CodeScanner(targetInfo)
 
         // Transform的inputs有两种类型，一种是目录，一种是jar包，要分开遍历
-        inputs.each {TransformInput input ->
+        inputs.each { TransformInput input ->
             //对类型为“文件夹”的input进行遍历
-            input.directoryInputs.each {DirectoryInput directoryInput->
+            input.directoryInputs.each { DirectoryInput directoryInput ->
                 //文件夹里面包含的是我们手写的类以及R.class、BuildConfig.class以及R$XXX.class等
-
 
                 // 获取output目录
                 def dest = outputProvider.getContentLocation(directoryInput.name,
                         directoryInput.contentTypes, directoryInput.scopes,
                         Format.DIRECTORY)
 
+                String root = directoryInput.file.absolutePath
+                if (!root.endsWith(File.separator))
+                    root += File.separator
+
+                directoryInput.file.eachFileRecurse { File file ->
+                    def path = file.absolutePath.replace(root, '')
+                    if (file.isFile()) {
+                        def entryName = path
+                        if (!leftSlash) {
+                            entryName = entryName.replaceAll("\\\\", "/")
+                        }
+                        scanProcessor.checkInitClass(entryName, new File(dest.absolutePath + File.separator + path))
+                        scanProcessor.scanClass(file)
+                    }
+                }
                 // 将input的目录复制到output指定目录
                 FileUtils.copyDirectory(directoryInput.file, dest)
             }
             //对类型为jar文件的input进行遍历
-            input.jarInputs.each {JarInput jarInput->
+            input.jarInputs.each { JarInput jarInput ->
 
                 //jar文件一般是第三方依赖库jar文件
 

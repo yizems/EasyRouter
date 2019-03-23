@@ -1,7 +1,9 @@
 apply plugin: 'groovy'
 
 dependencies {
-    implementation project(':easyrouter_annotation')
+    compileOnly project(':easyrouter_annotation')
+    compile gradleApi()
+    compile localGroovy()
 }
 
 repositories {
@@ -17,7 +19,7 @@ uploadArchives {
             repository(url: uri('C:/Users/YZL/.m2/repository')) //deploy到本地仓库
             pom.groupId = "cn.yzl.easyrouter"
             pom.artifactId = "register"
-            pom.version = "1.1.0"
+            pom.version = "1.1.1"
         }
     }
 }
