@@ -1,8 +1,6 @@
 package cn.yzl.android.easyrouter_register
 
-import cn.yzl.android.easyrouter.annotation.Router
-import jdk.internal.org.objectweb.asm.Type
-import jdk.internal.org.objectweb.asm.tree.AnnotationNode
+
 import org.objectweb.asm.*
 
 import java.util.jar.JarEntry
@@ -112,36 +110,6 @@ class CodeScanner {
     }
 
     /**
-     * 过滤器进行过滤
-     * @param info
-     * @param entryName
-     * @return
-     */
-//    private static boolean shouldProcessThisClassForRegister(RegisterInfo info, String entryName) {
-//        if (info != null) {
-//            def list = info.includePatterns
-//            if (list) {
-//                def exlist = info.excludePatterns
-//                Pattern pattern, p
-//                for (int i = 0; i < list.size(); i++) {
-//                    pattern = list.get(i)
-//                    if (pattern.matcher(entryName).matches()) {
-//                        if (exlist) {
-//                            for (int j = 0; j < exlist.size(); j++) {
-//                                p = exlist.get(j)
-//                                if (p.matcher(entryName).matches())
-//                                    return false
-//                            }
-//                        }
-//                        return true
-//                    }
-//                }
-//            }
-//        }
-//        return false
-//    }
-
-    /**
      * 处理class的注入
      * @param file class文件
      * @return 修改后的字节码文件内容
@@ -152,10 +120,11 @@ class CodeScanner {
 
     //refer hack class when object init
     boolean scanClass(InputStream inputStream, String filePath) {
+        println("path:" + filePath)
         ClassReader cr = new ClassReader(inputStream)
-//        ClassWriter cw = new ClassWriter(cr, 0)
-        ScanClassVisitor cv = new ScanClassVisitor(Opcodes.ASM6, null, filePath)
-        cr.accept(cv, 0)
+        ClassWriter cw = new ClassWriter(cr, 0)
+        ScanClassVisitor cv = new ScanClassVisitor(Opcodes.ASM5, cw, filePath)
+        cr.accept(cv, ClassReader.EXPAND_FRAMES)
         inputStream.close()
         return cv.found
     }
@@ -177,37 +146,19 @@ class CodeScanner {
             return found
         }
 
-//        ClassVisitorFaker cv = new ClassVisitorFaker();
-//        ClassReader cr = new ClassReader(getClassLoader().getResourceAsStream(clsRsName));
-//        cr.accept ( cv , 0 );
-//        List<AnnotationNode> annotationsList = cv.getVisibleAnnotations();
-//        if ( null != annotationsList ) {
-//            for (Iterator<AnnotationNode> it = annotationsList.iterator(); it.hasNext();) {
-//                AnnotationNode annotation = it.next();
-//                Type t = Type.getType(annotation.desc);
-//                if (AnnotationFaker.class.getName().equals(t.getClassName())) {
-//                    Class clazz = Class.forName(filenameToClassname(clsRsName));
-//                    ClassFaker faker = (ClassFaker) clazz.newInstance();
-//                    faker.hello();
-//                }
-//            }
-//        }
-
         @Override
         AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             println("visitAnnotation:" + desc)
-//            AnnotationNode an = new AnnotationNode(desc);
-//            if (desc.startsWith("L/cn/yzl/android/easyrouter/annotation")) {
-//                Type t = Type.getType(annotation.desc)
-//
-//                if (Router.class.getName() == t.getClassName()) {
-                    println("annotation 匹配成功")
-////                    an.values.each {
-////                        println("values:" + it.toString())
-////                    }
-////                    isFound = true
-//                }
-//            }
+//            AnnotationNode an = new AnnotationNode(desc)
+            if (desc.startsWith("Lcn/yzl/android/easyrouter/annotation/Router")) {
+                return new AnnotationVisitor(Opcodes.ASM5,super.visitAnnotation(desc, visible)) {
+                    @Override
+                    void visit(String name, Object value) {
+                        super.visit(name, value)
+                        println("找到 annotation值:$name -- $value")
+                    }
+                }
+            }
             return null
         }
 
@@ -219,65 +170,6 @@ class CodeScanner {
             }
             super.visit(version, access, name, signature, superName, interfaces)
         }
-//        void gotOne(String interfaceName, String className, RegisterInfo ext) {
-//            ext.classList.add(className) //需要把对象注入到管理类 就是fileContainsInitClass
-//            found = true
-//            addToCacheMap(interfaceName, className, filePath)
-//        }
+
     }
-    /**
-     * 扫描到的类添加到map
-     * @param interfaceName
-     * @param name
-     * @param srcFilePath
-     */
-//    private void addToCacheMap(String interfaceName, String name, String srcFilePath) {
-//        if (!srcFilePath.endsWith(".jar") || cacheMap == null) return
-//        def jarHarvest = cacheMap.get(srcFilePath)
-//        if (!jarHarvest) {
-//            jarHarvest = new ScanJarHarvest()
-//            cacheMap.put(srcFilePath, jarHarvest)
-//        }
-//        if (name) {
-//            ScanJarHarvest.Harvest harvest = new ScanJarHarvest.Harvest()
-//            harvest.setIsInitClass(interfaceName == null)
-//            harvest.setInterfaceName(interfaceName)
-//            harvest.setClassName(name)
-//            jarHarvest.harvestList.add(harvest)
-//        }
-//    }
-
-//    boolean isCachedJarContainsInitClass(String filePath) {
-//        return cachedJarContainsInitClass.contains(filePath)
-//    }
-
-    /**
-     * 检查是否存在缓存，有就添加class list 和 设置fileContainsInitClass
-     * @param jarFile
-     * @param destFile
-     * @return 是否存在缓存
-     */
-//    boolean hitCache(File jarFile, File destFile) {
-//        def jarFilePath = jarFile.absolutePath
-//        if (cacheMap != null) {
-//            ScanJarHarvest scanJarHarvest = cacheMap.get(jarFilePath)
-//            if (scanJarHarvest) {
-//                infoList.each { info ->
-//                    scanJarHarvest.harvestList.each { harvest ->
-//                        //       println("----ccMainHarvest-------"+ccMainHarvest.className)
-//                        if (harvest.isInitClass) {
-//                            if (info.initClassName == harvest.className) {
-//                                info.fileContainsInitClass = destFile
-//                                cachedJarContainsInitClass.add(jarFilePath)
-//                            }
-//                        } else if (info.interfaceName == harvest.interfaceName) {
-//                            info.classList.add(harvest.className)
-//                        }
-//                    }
-//                }
-//                return true
-//            }
-//        }
-//        return false
-//    }
 }

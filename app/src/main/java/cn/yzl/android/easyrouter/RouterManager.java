@@ -1,7 +1,9 @@
 package cn.yzl.android.easyrouter;
 
-public class RouterManager {
+import cn.yzl.android.easyrouter.annotation.Router;
 
+@Router(path = "main")
+public class RouterManager {
     static void router() {
 
     }

@@ -75,14 +75,16 @@ public class RegisterTransform extends Transform {
                     root += File.separator
 
                 directoryInput.file.eachFileRecurse { File file ->
-                    def path = file.absolutePath.replace(root, '')
-                    if (file.isFile()) {
-                        def entryName = path
-                        if (!leftSlash) {
-                            entryName = entryName.replaceAll("\\\\", "/")
+                    if (file.absolutePath.endsWith(".class")) {
+                        def path = file.absolutePath.replace(root, '')
+                        if (file.isFile()) {
+                            def entryName = path
+                            if (!leftSlash) {
+                                entryName = entryName.replaceAll("\\\\", "/")
+                            }
+                            scanProcessor.checkInitClass(entryName, new File(dest.absolutePath + File.separator + path))
+                            scanProcessor.scanClass(file)
                         }
-                        scanProcessor.checkInitClass(entryName, new File(dest.absolutePath + File.separator + path))
-                        scanProcessor.scanClass(file)
                     }
                 }
                 // 将input的目录复制到output指定目录
