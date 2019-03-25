@@ -1,1 +1,1 @@
-include ':app', ':easyrouter', ':easyrouter_register', ':samplelibrary'
+include ':app', ':easyrouter', ':easyrouter_register'//, ':samplelibrary'
