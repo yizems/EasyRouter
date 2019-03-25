@@ -10,16 +10,13 @@ import org.gradle.api.Project
 public class RegisterPlugin implements Plugin<Project> {
 
     public static final String PLUGIN_NAME = 'easy_router'
-    public static final String EXT_NAME = 'easy_router'
 
 
     @Override
     void apply(Project project) {
         println "project(${project.name}) apply ${PLUGIN_NAME} plugin"
-        def targetInfo = project.extensions.create(EXT_NAME, RegisterTargetInfo)
 
         def transformImpl = new RegisterTransform(project)
-        transformImpl.targetInfo = targetInfo
         def android = project.extensions.getByType(AppExtension)
         android.registerTransform(transformImpl)
     }

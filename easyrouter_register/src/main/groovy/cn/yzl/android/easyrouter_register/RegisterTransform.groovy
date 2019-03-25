@@ -9,13 +9,14 @@ import org.gradle.api.Project
 /**
  * 自动注册核心类
  */
-public class RegisterTransform extends Transform {
+class RegisterTransform extends Transform {
 
     public static final String PLUGIN_NAME = RegisterPlugin.PLUGIN_NAME
 
 
-    RegisterTargetInfo targetInfo;
-    Project project;
+    RegisterInfo registerInfo = new RegisterInfo()
+
+    Project project
 
     RegisterTransform(Project project) {
         this.project = project
@@ -47,7 +48,6 @@ public class RegisterTransform extends Transform {
                    TransformOutputProvider outputProvider,
                    boolean isIncremental) throws IOException, TransformException, InterruptedException {
         project.logger.warn("start ${PLUGIN_NAME} transform...")
-        project.logger.warn(targetInfo.toString())
 
 //        def clearCache = !isIncremental
 //        // clean build cache
@@ -57,7 +57,7 @@ public class RegisterTransform extends Transform {
         boolean leftSlash = File.separator == '/'
         outputProvider.deleteAll()
 
-        CodeScanner scanProcessor = new CodeScanner(targetInfo)
+        CodeScanner scanProcessor = new CodeScanner(registerInfo)
 
         // Transform的inputs有两种类型，一种是目录，一种是jar包，要分开遍历
         inputs.each { TransformInput input ->
@@ -110,6 +110,10 @@ public class RegisterTransform extends Transform {
                 scanJar(jarInput, outputProvider, scanProcessor)
             }
         }
+
+        println(registerInfo.toString())
+
+        new CodeGenerater(registerInfo).insertCode()
     }
 
 

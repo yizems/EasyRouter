@@ -7,24 +7,14 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 /**
- *
- * @author billy.qi
- * @since 17/3/20 11:48
+ * 扫描
  */
 class CodeScanner {
 
-//    ArrayList<RegisterInfo> infoList
-//    Map<String, ScanJarHarvest> cacheMap
-//    Set<String> cachedJarContainsInitClass = new HashSet<>()
-//
-//    CodeScanner(ArrayList<RegisterInfo> infoList, Map<String, ScanJarHarvest> cacheMap) {
-//        this.infoList = infoList
-//        this.cacheMap = cacheMap
-//    }
-    RegisterTargetInfo targetInfo
+    RegisterInfo registerInfo
 
-    CodeScanner(targetInfo) {
-        this.targetInfo = targetInfo
+    CodeScanner(registerInfo) {
+        this.registerInfo = registerInfo
     }
     /**
      * 扫描jar包
@@ -64,28 +54,32 @@ class CodeScanner {
     }
     /**
      * 检查此entryName是不是被注入注册代码的类，如果是则记录此文件（class文件或jar文件）用于后续的注册代码注入
-     * @param entryName
+     * @param entryName cn/yzl/android/easyrouter/annotation/RouterManager.class
      * @param destFile
      */
     boolean checkInitClass(String entryName, File destFile) {
         checkInitClass(entryName, destFile, "")
     }
-
+    /**
+     *
+     * @param entryName cn/yzl/android/easyrouter/annotation/RouterManager.class
+     * @param destFile
+     * @param srcFilePath
+     * @return
+     */
     boolean checkInitClass(String entryName, File destFile, String srcFilePath) {
-        if (entryName == null || !entryName.endsWith(".class"))
-            return
-        println("entryName:" + entryName)
-        entryName = entryName.substring(0, entryName.lastIndexOf('.'))
-        println("entryName:" + entryName)
-        def found = false
-        if (targetInfo.targetClass == entryName) {
-            ext.fileContainsInitClass = destFile
-            if (destFile.name.endsWith(".jar")) {
-//                addToCacheMap(null, entryName, srcFilePath)
-                found = true
-            }
+        if (entryName == null || !entryName.endsWith(".class")) {
+            return false
         }
-        return found
+        if (entryName.startsWith(registerInfo.initClassName)) {
+            registerInfo.registerJarFilePath = destFile
+            println("查找init class 成功:" + destFile)
+            return true
+//            if (destFile.name.endsWith(".jar")) {
+////                addToCacheMap(null, entryName, srcFilePath)
+//            }
+        }
+        return false
     }
 
     // file in folder like these
@@ -120,7 +114,6 @@ class CodeScanner {
 
     //refer hack class when object init
     boolean scanClass(InputStream inputStream, String filePath) {
-        println("path:" + filePath)
         ClassReader cr = new ClassReader(inputStream)
         ClassWriter cw = new ClassWriter(cr, 0)
         ScanClassVisitor cv = new ScanClassVisitor(Opcodes.ASM5, cw, filePath)
@@ -132,6 +125,7 @@ class CodeScanner {
     class ScanClassVisitor extends ClassVisitor {
         private String filePath
         private def found = false
+        private def className = ""
 
         ScanClassVisitor(int api, ClassVisitor cv, String filePath) {
             super(api, cv)
@@ -151,11 +145,12 @@ class CodeScanner {
             println("visitAnnotation:" + desc)
 //            AnnotationNode an = new AnnotationNode(desc)
             if (desc.startsWith("Lcn/yzl/android/easyrouter/annotation/Router")) {
-                return new AnnotationVisitor(Opcodes.ASM5,super.visitAnnotation(desc, visible)) {
+                return new AnnotationVisitor(Opcodes.ASM5, super.visitAnnotation(desc, visible)) {
                     @Override
                     void visit(String name, Object value) {
                         super.visit(name, value)
                         println("找到 annotation值:$name -- $value")
+                        registerInfo.findRouters.add(new RegisterInfo.RouterBean(filePath, className, value))
                     }
                 }
             }
@@ -168,6 +163,7 @@ class CodeScanner {
             if (is(access, Opcodes.ACC_ANNOTATION)) {
                 return
             }
+            className = name
             super.visit(version, access, name, signature, superName, interfaces)
         }
 
