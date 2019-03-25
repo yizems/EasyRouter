@@ -3,18 +3,28 @@ package cn.yzl.android.easyrouter_register;
 import java.util.ArrayList;
 
 public class RegisterInfo {
-
+    /**
+     * register class
+     */
     public String initClassName = "cn/yzl/android/easyrouter/annotation/RouterManager";
     /**
      * java static{}
      */
     public String initMethodName = "<clinit>";
-    //    public String registerClassName = "";
+    /**
+     * add router method
+     */
     public String registerMethodName = "addRouter";
 
+    /**
+     * jar path
+     * case:initClass in library
+     */
     public String registerJarFilePath = "";
 
-
+    /**
+     * 查找到的 routers
+     */
     public ArrayList<RouterBean> findRouters = new ArrayList();
 
 
@@ -29,8 +39,17 @@ public class RegisterInfo {
     }
 
     static class RouterBean {
+        /**
+         * file path
+         */
         String filePath;
+        /**
+         * class name :ex: cn/yzl/android/easyrouter/annotation/RouterManager
+         */
         String className;
+        /**
+         * [Router.path]
+         */
         String path;
 
         public RouterBean() {

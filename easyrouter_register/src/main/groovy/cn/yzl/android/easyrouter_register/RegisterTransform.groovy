@@ -49,14 +49,11 @@ class RegisterTransform extends Transform {
                    boolean isIncremental) throws IOException, TransformException, InterruptedException {
         project.logger.warn("start ${PLUGIN_NAME} transform...")
 
-//        def clearCache = !isIncremental
-//        // clean build cache
-//        if (clearCache) {
-//            outputProvider.deleteAll()
-//        }
+        //todo 增量更新
+
         boolean leftSlash = File.separator == '/'
         outputProvider.deleteAll()
-
+        //初始化 CodeScanner
         CodeScanner scanProcessor = new CodeScanner(registerInfo)
 
         // Transform的inputs有两种类型，一种是目录，一种是jar包，要分开遍历
@@ -71,10 +68,12 @@ class RegisterTransform extends Transform {
                         Format.DIRECTORY)
 
                 String root = directoryInput.file.absolutePath
+                //文件分隔符处理
                 if (!root.endsWith(File.separator))
                     root += File.separator
-
+                //遍历文件
                 directoryInput.file.eachFileRecurse { File file ->
+                    //只处理 class文件
                     if (file.absolutePath.endsWith(".class")) {
                         def path = file.absolutePath.replace(root, '')
                         if (file.isFile()) {
@@ -92,27 +91,13 @@ class RegisterTransform extends Transform {
             }
             //对类型为jar文件的input进行遍历
             input.jarInputs.each { JarInput jarInput ->
-
-                //jar文件一般是第三方依赖库jar文件
-
-                // 重命名输出文件（同目录copyFile会冲突）
-//                def jarName = jarInput.name
-//                def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
-//                if(jarName.endsWith(".jar")) {
-//                    jarName = jarName.substring(0,jarName.length()-4)
-//                }
-//                //生成输出路径
-//                def dest = outputProvider.getContentLocation(jarName+md5Name,
-//                        jarInput.contentTypes, jarInput.scopes, Format.JAR)
-//                //将输入内容复制到输出
-//                FileUtils.copyFile(jarInput.file, dest)
-
+                //开始扫描jar中的class文件,复制操作放到里面做了
                 scanJar(jarInput, outputProvider, scanProcessor)
             }
         }
 
         println(registerInfo.toString())
-
+        //开始生成文件
         new CodeGenerater(registerInfo).insertCode()
     }
 
@@ -123,20 +108,19 @@ class RegisterTransform extends Transform {
         File src = jarInput.file
         //遍历jar的字节码类文件，找到被注解标记的类
         File dest = getDestFile(jarInput, outputProvider)
-        long time = System.currentTimeMillis();
+//        long time = System.currentTimeMillis();
         scanProcessor.scanJar(src, dest)
-//        if (!scanProcessor.scanJar(src, dest) //直接读取了缓存，没有执行实际的扫描
-//                //此jar文件中不需要被注入代码
-//                //为了避免增量编译时代码注入重复，被注入代码的jar包每次都重新复制
-//                && !scanProcessor.isCachedJarContainsInitClass(src.absolutePath)) {
-//            //不需要执行文件复制，直接返回
-//            return
-//        }
-        println "${PLUGIN_NAME} cost time: " + (System.currentTimeMillis() - time) + " ms to scan jar file:" + dest.absolutePath
-        //复制jar文件到transform目录：build/transforms/cc-register/
+//        println "${PLUGIN_NAME} cost time: " + (System.currentTimeMillis() - time) + " ms to scan jar file:" + dest.absolutePath
+        //复制jar文件到transform目录：build/intermediates/transforms/easy_router
         FileUtils.copyFile(src, dest)
     }
-
+    /**
+     * 获取生成的行文件 jar 文件名和路径
+     * jar要被重命名,否则会覆盖掉
+     * @param jarInput
+     * @param outputProvider
+     * @return
+     */
     static File getDestFile(JarInput jarInput, TransformOutputProvider outputProvider) {
         def destName = jarInput.name
         // 重名名输出文件,因为可能同名,会覆盖
