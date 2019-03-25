@@ -59,10 +59,10 @@ public class Request {
         }
         Intent intent = null;
 
-        Class clazz = RouterManager.ROUTERS.get("path");
+        Class clazz = RouterManager.ROUTERS.get(path);
 
         if (clazz == null) {
-            throw new IllegalArgumentException("no path router");
+            throw new IllegalArgumentException("no path router:" + path);
         }
         if (obj instanceof Activity) {
             intent = new Intent((Activity) obj, clazz);

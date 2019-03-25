@@ -4,6 +4,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class RouterManager {
 
+    public static final String KEY_PARAMS = "router_params";
+
     static final ConcurrentHashMap<String, Class> ROUTERS = new ConcurrentHashMap<>();
 
 

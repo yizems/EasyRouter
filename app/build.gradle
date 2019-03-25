@@ -8,7 +8,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "cn.yzl.android.easyrouter"
+        applicationId "cn.yzl.android.sample"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
@@ -32,6 +32,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':easyrouter')
+    implementation project(':samplelibrary')
 }
 
 
@@ -53,5 +54,4 @@ apply plugin: 'easyrouter'
 //        // in the individual module build.gradle files
 //    }
 //}
-
 
