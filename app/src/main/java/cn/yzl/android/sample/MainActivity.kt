@@ -1,7 +1,8 @@
-package cn.yzl.android.easyrouter
+package cn.yzl.android.sample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import cn.yzl.android.easyrouter.R
 import cn.yzl.android.easyrouter.annotation.Router
 
 @Router(path = "main")

@@ -7,7 +7,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 /**
- * 扫描
+ * 扫描字节码
  */
 class CodeScanner {
 
@@ -29,15 +29,16 @@ class CodeScanner {
         def srcFilePath = jarFile.absolutePath
         def file = new JarFile(jarFile)
         Enumeration enumeration = file.entries()
-
+        //遍历jar中的元素
         while (enumeration.hasMoreElements()) {
+            //这个就是class文件/其他文件
             JarEntry jarEntry = (JarEntry) enumeration.nextElement()
             String entryName = jarEntry.getName()
             //support包不扫描
             if (entryName.startsWith("android/support"))
                 break
             checkInitClass(entryName, destFile, srcFilePath)
-            //是否要过滤这个类，这个可配置
+            //是否要过滤这个类
             if (shouldProcessClass(entryName)) {
                 println(entryName)
                 InputStream inputStream = file.getInputStream(jarEntry)
@@ -81,26 +82,24 @@ class CodeScanner {
         }
         return false
     }
-
-    // file in folder like these
-    //com/billy/testplugin/Aop.class
-    //com/billy/testplugin/BuildConfig.class
-    //com/billy/testplugin/R$attr.class
-    //com/billy/testplugin/R.class
-    // entry in jar like these
-    //android/support/v4/BuildConfig.class
-    //com/lib/xiwei/common/util/UiTools.class
+    /**
+     * 需要过滤掉一些非class文件
+     * @param entryName
+     * @return
+     */
     boolean shouldProcessClass(String entryName) {
-        println('classes:' + entryName)
+//        println('classes:' + entryName)
         if (entryName == null || !entryName.endsWith(".class"))
             return false
-        entryName = entryName.substring(0, entryName.lastIndexOf('.'))
-//        def length = infoList.size()
-//        for (int i = 0; i < length; i++) {
-//            if (shouldProcessThisClassForRegister(infoList.get(i), entryName))
-//                return true
-//        }
-        return false
+        if (entryName.startsWith("org/jetbrains")
+                || entryName.startsWith("org/intellij")
+                || entryName.startsWith("kotlin")
+                || entryName.startsWith("android")
+                || entryName.startsWith("androidx")
+        ) {
+            return false
+        }
+        return true
     }
 
     /**
@@ -112,7 +111,12 @@ class CodeScanner {
         return scanClass(file.newInputStream(), file.absolutePath)
     }
 
-    //refer hack class when object init
+    /**
+     * 开始访问文件
+     * @param inputStream
+     * @param filePath
+     * @return
+     */
     boolean scanClass(InputStream inputStream, String filePath) {
         ClassReader cr = new ClassReader(inputStream)
         ClassWriter cw = new ClassWriter(cr, 0)
@@ -145,11 +149,13 @@ class CodeScanner {
             println("visitAnnotation:" + desc)
 //            AnnotationNode an = new AnnotationNode(desc)
             if (desc.startsWith("Lcn/yzl/android/easyrouter/annotation/Router")) {
+                //构建AnnotationVisitor 访问 annotation
                 return new AnnotationVisitor(Opcodes.ASM5, super.visitAnnotation(desc, visible)) {
                     @Override
                     void visit(String name, Object value) {
                         super.visit(name, value)
-                        println("找到 annotation值:$name -- $value")
+//                        println("找到 annotation值:$name -- $value")
+                        //找到被标记的类,开始添加到 registerInfo.findRouters
                         registerInfo.findRouters.add(new RegisterInfo.RouterBean(filePath, className, value))
                     }
                 }
@@ -163,6 +169,7 @@ class CodeScanner {
             if (is(access, Opcodes.ACC_ANNOTATION)) {
                 return
             }
+            //记录className
             className = name
             super.visit(version, access, name, signature, superName, interfaces)
         }
