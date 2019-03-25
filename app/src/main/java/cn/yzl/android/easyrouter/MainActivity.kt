@@ -9,5 +9,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        print(RouterManager.ROUTERS.get("main").toString())
+        print("")
     }
 }

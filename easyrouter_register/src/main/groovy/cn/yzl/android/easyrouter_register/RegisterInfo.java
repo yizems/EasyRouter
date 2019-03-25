@@ -6,7 +6,7 @@ public class RegisterInfo {
     /**
      * register class
      */
-    public String initClassName = "cn/yzl/android/easyrouter/annotation/RouterManager";
+    public String initClassName = "cn/yzl/android/easyrouter/RouterManager";
     /**
      * java static{}
      */

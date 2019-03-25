@@ -180,7 +180,7 @@ class CodeGenerater {
                     mv.visitMethodInsn(methodOpcode
                             , registerInfo.initClassName
                             , registerInfo.registerMethodName
-                            , "(Ljava/lang/Object;Ljava/lang/Object;)V"
+                            , "(Ljava/lang/String;Ljava/lang/Class;)V"
                             , false)
                 }
             }
