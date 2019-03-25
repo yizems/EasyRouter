@@ -16,10 +16,4 @@ public @interface Router {
      * @return
      */
     String path();
-
-    /**
-     * 参数key
-     * @return
-     */
-    String paramsKey() default "router_params";
 }
