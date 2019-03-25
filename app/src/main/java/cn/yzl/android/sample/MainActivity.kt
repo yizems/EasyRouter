@@ -1,7 +1,8 @@
-package cn.yzl.android.easyrouter
+package cn.yzl.android.sample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import cn.yzl.android.easyrouter.R
 import cn.yzl.android.easyrouter.annotation.Router
 
 @Router(path = "main")
@@ -9,7 +10,5 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        print(RouterManager.ROUTERS.get("main").toString())
-        print("")
     }
 }
