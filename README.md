@@ -2,8 +2,6 @@
 
 ## EasyRouter
 
-[![](https://jitpack.io/v/yizems/EasyRouter.svg)](https://jitpack.io/#yizems/EasyRouter)
-
 非组件化通讯路由,只是用来处理页面跳转等基本操作,最多也就支持fragment了,不会支持View等对象传递
 
 - 如果你要强大的路由,请移步[ARouter](https://github.com/alibaba/ARouter)
@@ -31,11 +29,12 @@
 
 ## 添加依赖
 
-还未上传maven库
+[![](https://jitpack.io/v/yizems/EasyRouter.svg)](https://jitpack.io/#yizems/EasyRouter)
+
 
 
 ```gradle
-classpath "cn.yzl.easyrouter:register:0.1.0"
+classpath "com.github.yizems.EasyRouter:easyrouter_register:$version"
 
 
 
@@ -43,7 +42,7 @@ classpath "cn.yzl.easyrouter:register:0.1.0"
 
 apply plugin: 'easyrouter'
 
-implementation project(':easyrouter')
+implementation "com.github.yizems.EasyRouter:easyrouter:$version"
 
 ```
 
