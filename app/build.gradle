@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+//apply plugin: 'easyrouter'
+
 
 android {
     compileSdkVersion 28
@@ -33,8 +35,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':easyrouter')
 //    implementation project(':samplelibrary')
+//    implementation 'com.github.yizems.EasyRouter:easyrouter:0.1.3'
 }
 
 
-//apply plugin: 'easyrouter'
 
